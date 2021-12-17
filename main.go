@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -58,10 +59,18 @@ func uploadHanlder(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
+
+func logRequest(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	fmt.Println("Starting web server....")
 	http.HandleFunc("/coucou", coucou)
 	http.HandleFunc("/upload", uploadHanlder)
 	http.Handle("/", http.FileServer(http.Dir("/home/seb")))
-	http.ListenAndServe(":8090", nil)
+	http.ListenAndServe(":8090", logRequest(http.DefaultServeMux))
 }
