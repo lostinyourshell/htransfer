@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-func coucou(w http.ResponseWriter, req *http.Request) {
-
-	fmt.Fprintf(w, "coucou\n")
-	fmt.Fprint(w, req.Method+"\n")
-}
-
 func uploadGet(w http.ResponseWriter) {
 	body := `
 		<html>
@@ -69,7 +63,6 @@ func logRequest(handler http.Handler) http.Handler {
 
 func main() {
 	fmt.Println("Starting web server....")
-	http.HandleFunc("/coucou", coucou)
 	http.HandleFunc("/upload", uploadHanlder)
 	http.Handle("/", http.FileServer(http.Dir("/home/seb")))
 	http.ListenAndServe(":8090", logRequest(http.DefaultServeMux))
