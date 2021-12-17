@@ -1,12 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 )
+
+var uploadDir string
 
 func uploadGet(w http.ResponseWriter) {
 	body := `
@@ -30,7 +33,7 @@ func uploadPost(req *http.Request) {
 		return
 	}
 	defer file.Close()
-	f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0444)
+	f, err := os.OpenFile(uploadDir+handler.Filename, os.O_WRONLY|os.O_CREATE, 0444)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -62,8 +65,19 @@ func logRequest(handler http.Handler) http.Handler {
 }
 
 func main() {
-	fmt.Println("Starting web server....")
+	var port int
+	var root string
+
+	currentDir, _ := os.Getwd()
+	flag.IntVar(&port, "port", 8090, "port to listen to...")
+	flag.StringVar(&root, "root", "/tmp", "server root directory ")
+	flag.StringVar(&uploadDir, "uploadDir", currentDir, "directory where file will be uploaded")
+	flag.Parse()
+	fmt.Printf("(+) Starting web server on port %d....\n", port)
+	fmt.Printf("(+) Server root directory: %s\n", root)
+	fmt.Printf("(+) Upload directory: %s\n", uploadDir)
 	http.HandleFunc("/upload", uploadHanlder)
-	http.Handle("/", http.FileServer(http.Dir("/home/seb")))
-	http.ListenAndServe(":8090", logRequest(http.DefaultServeMux))
+	http.Handle("/", http.FileServer(http.Dir(root)))
+	adress := fmt.Sprintf(":%d", port)
+	http.ListenAndServe(adress, logRequest(http.DefaultServeMux))
 }
