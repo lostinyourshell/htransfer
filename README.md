@@ -1,10 +1,11 @@
 # HTransfer
-Simple HTTP Server to download and upload file
+Simple HTTP Server to download and upload file.
 
 ## Usage
-**TODO**
+```
+./htransfer -port <port> -root <dir> -uploadDir <dir>
+```
 
-## Todo
-Check if uploadDir is a valid directory :
-- path exists
-- is a child of the working directory
+
+## Limitation
+HTTPS is not supported.
